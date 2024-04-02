@@ -1,0 +1,9 @@
+Crear una pagina para el home en la misma raiz del wordpress
+
+Buscar como agregar un nuevo tipo de contenido con el nombre 'practice' 
+
+Agregar taxonomia para ese tipo de contenido que se llame 'tipo de factura'
+
+agregar 3 o 4 terminos de esa categoria
+
+crear un template para el detalle de esos post difrente para esa taxonomia
