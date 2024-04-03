@@ -21,8 +21,7 @@
             <a href="" class="btn btn-danger mx-2">
                 <?php echo apply_filters('hook_change_btn_text', 'Get Started Today') ?>
             </a>
-            <?php do_action('after_header_button') ?>
-
+            <?php do_action('hook_add_btn') ?>
 
         </div>
     </div>
