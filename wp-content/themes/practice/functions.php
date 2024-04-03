@@ -15,3 +15,4 @@ function practice_menus()
     register_nav_menus($locations);
 }
 add_action('init', 'practice_menus');
+
