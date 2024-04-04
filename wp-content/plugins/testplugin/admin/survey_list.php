@@ -1,3 +1,11 @@
+<?php
+global $wpdb;
+$query = "SELECT * FROM {$wpdb->prefix}surveys";
+$survey_list = $wpdb->get_results($query, ARRAY_A);
+if (empty($survey_list)) {
+    $survey_list = array();
+}
+?>
 <div class="wrap">
     <?php
     echo "<h1 class='wp-heading-inline'>" . get_admin_page_title() . "</h1>";
@@ -13,12 +21,25 @@
                 </tr>
             </thead>
             <tbody id="the-list">
-                <tr class="">
-                    <td scope="row">First survey</td>
-                    <td>[CODE]</td>
-                    <td>EDIT|DELETE</td>
-                </tr>
+                <?php
 
+                foreach ($survey_list as $key => $value) {
+                    # code...
+                    $name = $value['name'];
+                    $shortcode = $value['shortcode'];
+                    echo "
+                                <tr>
+                                <td scope='row'>$name</td>
+                                <td>$shortcode</td>
+                                <td><a href='' class='page-title-action'>DELETE</a>
+                                    <a href='' class='page-title-action'>VIEW STATS</a>
+                                </td>
+                                </tr>
+                                ";
+                }
+
+
+                ?>
             </tbody>
         </table>
     </div>
