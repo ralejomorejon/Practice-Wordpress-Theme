@@ -88,8 +88,45 @@ function CreateMenu()
 }
 
 
-
 function TestPluginSubmenuPage()
 {
     echo " <h1>Submenu page</h1>";
 }
+
+
+//adding bootstrapjs
+function AddBootstrapJS($hook)
+{
+    // echo "<script>console.log('$hook')</script>";
+    if (
+        $hook != "testplugin/admin/survey_list.php"
+    ) {
+        return;
+    }
+    wp_enqueue_script('bootstrapJS', plugins_url('admin/bootstrap/js/bootstrap.min.js', __FILE__), array('jquery'));
+}
+add_action('admin_enqueue_scripts', 'AddBootstrapJS');
+
+function AddBootstrapCSS($hook)
+{
+    if (
+        $hook != "testplugin/admin/survey_list.php"
+    ) {
+        return;
+    }
+    wp_enqueue_style('bootstrapCSS', plugins_url('admin/bootstrap/css/bootstrap.min.css', __FILE__));
+}
+add_action('admin_enqueue_scripts', 'AddBootstrapCSS');
+
+function AddMainJS($hook)
+{
+    // echo "<script>console.log('$hook')</script>";
+    if (
+        $hook != "testplugin/admin/survey_list.php"
+    ) {
+        return;
+    }
+    wp_enqueue_script('mainJS', plugins_url('admin/js/survey_list.js', __FILE__), array('jquery'));
+}
+add_action('admin_enqueue_scripts', 'AddMainJS');
+
