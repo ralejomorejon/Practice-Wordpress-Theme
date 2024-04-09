@@ -18,7 +18,7 @@ function show_discount_badge()
     }
 }
 
-add_action('woocommerce_single_product_summary', 'show_discount_badge', 25);
+add_action('woocommerce_before_add_to_cart_form', 'show_discount_badge', 25);
 
 // Verificar si el usuario ha comprado el producto anteriormente en una compra de al menos $15
 function customer_qualifies_for_discount()
