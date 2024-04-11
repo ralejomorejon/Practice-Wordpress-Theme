@@ -10,24 +10,63 @@ Author: Rene
 
 */
 
-function show_discount_badge()
+function check_cart_for_discount($cart)
 {
-    // Lógica para verificar si el usuario cumple con los requisitos para mostrar el sello
-    if (is_product() && is_user_logged_in() && customer_qualifies_for_discount()) {
-        echo '<div class="discount-badge" style="color:#f65">Usted tendrá un descuento del 10% en su próxima compra de este producto.</div>';
+
+
+    if (!is_user_logged_in()) {
+        return;
     }
-}
-
-add_action('woocommerce_single_product_summary', 'show_discount_badge', 25);
-
-// Verificar si el usuario ha comprado el producto anteriormente en una compra de al menos $15
-function customer_qualifies_for_discount()
-{
-    global $product, $woocommerce;
 
     $user_id = get_current_user_id();
-    $product_id = $product->get_id();
+    $cart_items = $cart->get_cart();
 
+    // Get completed orders of the user
+    $orders = wc_get_orders([
+        'customer_id' => $user_id,
+        'status' => ['completed'],
+        'return' => 'ids',
+        'limit' => -1,
+    ]);
+
+
+    // Make an array with the products that have been buyied before in a buy bigger than 15$
+    $eligible_product_ids = [];
+    foreach ($orders as $order_id) {
+        $order = wc_get_order($order_id);
+        if ($order->get_total() >= 15) {
+            foreach ($order->get_items() as $item) {
+                $product_id = $item->get_product_id();
+                $eligible_product_ids[] = $product_id;
+
+            }
+        }
+    }
+
+    // Check if any of the products in the cart apply for the discount
+    foreach ($cart_items as $cart_item_key => $cart_item) {
+        $product_id = $cart_item['product_id'];
+        if (in_array($product_id, $eligible_product_ids)) {
+            // Apply the discount
+            $product = wc_get_product($product_id);
+            $price = $product->get_price();
+            $discount = $price * 0.1;
+
+            // Adjust the price once in the cart
+            $cart->cart_contents[$cart_item_key]['data']->set_price($price - $discount);
+        }
+    }
+
+
+
+
+}
+
+add_action('woocommerce_cart_calculate_fees', 'check_cart_for_discount');
+
+
+function customer_qualifies_for_discount($product_id, $user_id)
+{
     $order_args = array(
         'customer_id' => $user_id,
         'status' => array('completed'),
@@ -39,11 +78,11 @@ function customer_qualifies_for_discount()
 
     foreach ($orders as $order_id) {
         $order = wc_get_order($order_id);
-        $items = $order->get_items();
-        foreach ($items as $item) {
-            $product = $item->get_product();
-            if ($product_id && $product->get_price() >= 2) {
-                return true;
+        if ($order->get_total() >= 15) {
+            foreach ($order->get_items() as $item) {
+                if ($item->get_product_id() == $product_id) {
+                    return true;
+                }
             }
         }
     }
@@ -51,25 +90,30 @@ function customer_qualifies_for_discount()
     return false;
 }
 
-// Aplicar descuento en el carrito si el producto califica
-function apply_discount_on_cart($cart)
+
+function show_discount_advice()
 {
-    if (is_admin() && !defined('DOING_AJAX')) {
+
+    if (!is_product()) {
         return;
     }
+
 
     if (!is_user_logged_in()) {
         return;
     }
 
-    foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
-        $product_id = $cart_item['product_id'];
-        if (customer_qualifies_for_discount()) {
-            $product = wc_get_product($product_id);
-            $discount_amount = $product->get_price() * 0.1; // 10% de descuento
-            $cart->add_fee(__('Descuento del 10%', 'woocommerce'), -$discount_amount);
-        }
+
+    global $product;
+    $product_id = $product->get_id();
+
+
+    $user_id = get_current_user_id();
+
+
+    if (customer_qualifies_for_discount($product_id, $user_id)) {
+        echo '<p style="color: green;">Usted tendrá un descuento del 10% en su próxima compra de este producto.</p>';
     }
 }
 
-add_action('woocommerce_cart_calculate_fees', 'apply_discount_on_cart');
+add_action('woocommerce_single_product_summary', 'show_discount_advice', 25);
