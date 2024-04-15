@@ -112,8 +112,12 @@ function show_discount_advice()
 
 
     if (customer_qualifies_for_discount($product_id, $user_id)) {
-        echo '<p style="color: green;">Usted tendrá un descuento del 10% en su próxima compra de este producto.</p>';
+        ?>
+        <p style="color: green;"><?= __('You will have a 10% discount at the purchase of this product'); ?></p>
+        <?php
     }
+
 }
+;
 
 add_action('woocommerce_single_product_summary', 'show_discount_advice', 25);
